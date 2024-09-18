@@ -8,6 +8,17 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 /// @notice This contract manages text and CID storage with owner-only write access
 /// @dev Inherits from OpenZeppelin's Ownable contract for access control
 contract Enki is Ownable {
+    /// @notice Emitted when the text and CID are updated
+    /// @param newText New text that was stored
+    /// @param newCID New CID that was stored
+    event Updated(string indexed newText, string indexed newCID);
+
+    /// @notice Stores the main text contents
+    string public text;
+
+    /// @notice Stores the Content Identifier (CID)
+    string public cid;
+
     /// @notice Initializes the contract with an owner, initial text, and CID
     /// @dev The initial owner should be a Governor contract address
     /// @param initialOwner Address of the initial owner (Governor contract)
@@ -22,16 +33,6 @@ contract Enki is Ownable {
         cid = _cid;
     }
 
-    /// @notice Stores the main text content
-    string public text;
-
-    /// @notice Stores the Content Identifier (CID)
-    string public cid;
-
-    /// @notice Mapping to store logs of changes
-    /// @dev Keys are old values, values are new values
-    mapping(string => string) public logs;
-
     /// @notice Retrieves the current stored text
     /// @return The current value of the text variable
     function read() public view returns (string memory) {
@@ -41,16 +42,11 @@ contract Enki is Ownable {
     /// @notice Updates the stored text and CID
     /// @dev Only the contract owner can call this function
     /// @param _newText New text to be stored
-    /// @param _newCid New CID to be stored
-    function write(string calldata _newText, string calldata _newCid) public onlyOwner {
-        string storage oldText = text;
-        string storage oldCid = cid;
-
+    /// @param _newCID New CID to be stored
+    function write(string calldata _newText, string calldata _newCID) public onlyOwner {
         text = _newText;
-        cid = _newCid;
-
-        logs[oldText] = _newText;
-        logs[oldCid] = _newCid;
+        cid = _newCID;
+        emit Updated(_newText, _newCID);
     }
 
     /// @notice Verifies if the provided text matches the stored text
